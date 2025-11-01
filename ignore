@@ -1,0 +1,189 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Compiled Python files
+*.pyc
+
+# Python venv
+.venv/
+venv/
+
+# Node.js dependencies
+node_modules/
+
+# Logs
+*.log
+
+# === DevOps & Infrastructure ===
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.auto.tfvars
+
+# Ansible
+*.retry
+.vault_pass
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+kubeconfig.*
+
+# === Secrets & Credentials ===
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+*.p12
+credentials.json
+secrets.yaml
+secrets.yml
+
+# === Build Artifacts ===
+dist/
+build/
+target/
+out/
+*.egg-info/
+
+# === Testing ===
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
+.tox/
+
+# === Cloud Provider CLIs ===
+.aws/
+.azure/
+.gcloud/
+
+# === Editor/IDE (additional) ===
+*.swp
+*.swo
+*~
+*.iml
+
+# === OS (Windows) ===
+Thumbs.db
+Desktop.ini
+
+**/.claude/settings.local.json
+
+# === Package managers ===
+.pnpm-store/
+.yarn/
+!.yarn/releases
+!.yarn/plugins
+.npm/
+bower_components/
+.pnpm-debug.log
+
+# === Rust ===
+Cargo.lock
+**/target/
+**/*.rs.bk
+
+# === Go ===
+*.exe
+*.exe~
+*.test
+*.out
+vendor/
+
+# === Java/Kotlin ===
+*.class
+*.jar
+*.war
+.gradle/
+.mvn/
+
+# === Databases ===
+*.sqlite
+*.sqlite3
+*.db
+
+# === Temporary files ===
+*.tmp
+*.temp
+*.bak
+*.backup
+.cache/
+
+# === AI/ML ===
+*.h5
+*.pkl
+*.pickle
+__pycache__/
+.ipynb_checkpoints/
+
+# === SSH/GPG ===
+*.ppk
+id_rsa
+id_ed25519
+id_ecdsa
+
+# === Monitoring/Profiling ===
+*.prof
+*.trace
+.benchmarks/
+
+# === Ruby ===
+Gemfile.lock
+.bundle/
+
+# === PHP ===
+composer.lock
+vendor/
+
+# === C/C++ ===
+*.o
+*.a
+*.so
+*.out
+*.app
+
+# === JavaScript/TypeScript ===
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+
+# === Operating Systems ===
+# Linux
+*~
+.directory
+
+# === Backup files ===
+*.orig
+*.rej

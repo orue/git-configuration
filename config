@@ -1,0 +1,199 @@
+[user]
+name = Your Name
+email = your.email@example.com
+signingkey = ~/.ssh/id_ed25519.pub
+
+[commit]
+	gpgsign = true
+	verbose = true
+	template = ~/.config/git/commit-template.txt
+	cleanup = scissors
+
+[gpg]
+	program = gpg
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+	defaultKeyCommand = ssh-add -L
+
+[alias]
+	# Status & Log
+	sb = status -sb
+	lol = log --oneline --graph --all
+
+	# Undo/Amend helpers
+	undo = reset HEAD~1 --mixed
+	amend = commit --amend --no-edit
+	fixup = commit --fixup
+
+	# Branch management
+	gone = ! git fetch -p && git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == "[gone]" {print $1}' | xargs -r git branch -D
+	branches = branch -vv
+	recent = branch --sort=-committerdate --format='%(committerdate:relative)%09%(refname:short)'
+
+	# Better diffs
+	staged = diff --cached
+	last = log -1 HEAD --stat
+	diffw = diff --word-diff
+
+	# Interactive operations
+	unstage = restore --staged
+	discard = restore
+
+	# Workflow shortcuts
+	pushu = push -u origin HEAD
+	sync = !git fetch --all --prune && git pull --rebase
+	wip = commit -am "WIP" --no-verify
+
+	# Search and debugging
+	grep = grep -Ii
+	find = log --all --full-history --
+	contributors = shortlog -sn
+
+[color]
+	ui = auto
+
+[color "diff"]
+	meta = yellow bold
+	commit = green bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+
+[color "branch"]
+	current = yellow reverse
+	local = yellow
+	remote = green
+
+[color "status"]
+	added = green
+	changed = yellow
+	untracked = red
+
+[column]
+ui = auto
+[branch]
+sort = -committerdate
+[tag]
+	sort = version:refname
+	gpgsign = true
+
+[blame]
+	ignoreRevsFile = .git-blame-ignore-revs
+	markIgnoredLines = true
+	markUnblamableLines = true
+[init]
+defaultBranch = main
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
+	tool = vimdiff
+	indentHeuristic = true
+	colorMovedWS = allow-indentation-change
+	submodule = log
+
+[difftool]
+	prompt = false
+	trustExitCode = true
+
+[diff "lockfile"]
+	textconv = cat
+	binary = true
+[push]
+	autoSetupRemote = true
+	followTags = true
+	default = current
+[fetch]
+	prune = true
+	pruneTags = true
+	fsckObjects = true
+	parallel = 0
+	writeCommitGraph = true
+
+[help]
+	autocorrect = prompt
+
+[status]
+	showUntrackedFiles = all
+	submoduleSummary = true
+
+[log]
+	abbrevCommit = true
+	follow = true
+	decorate = auto
+	date = relative
+
+[submodule]
+	recurse = true
+
+[rerere]
+enabled = true
+autoupdate = true
+[core]
+	editor = nvim
+	excludesfile = ~/.gitignore_global
+	fsmonitor = true
+	untrackedCache = true
+	preloadIndex = true
+	commitGraph = true
+	multiPackIndex = true
+[rebase]
+autoSquash = true
+autoStash = true
+updateRefs = true
+[merge]
+	conflictstyle = zdiff3
+	tool = vimdiff
+	ff = only
+
+[mergetool]
+	prompt = false
+	keepBackup = false
+	trustExitCode = true
+[pull]
+rebase = true
+[filter "lfs"]
+process = git-lfs filter-process
+required = true
+clean = git-lfs clean -- %f
+smudge = git-lfs smudge -- %f
+
+[feature]
+manyFiles = true
+
+[index]
+version = 4
+
+[protocol]
+version = 2
+
+[transfer]
+fsckObjects = true
+
+[receive]
+	fsckObjects = true
+
+[gc]
+	auto = 256
+	writeCommitGraph = true
+
+[maintenance]
+	auto = true
+	strategy = incremental
+
+[pack]
+	useSparse = true
+	writeReverseIndex = true
+
+[url "https://github.com/"]
+	insteadOf = git://github.com/
+
+[url "https://"]
+	insteadOf = git://
+
+[url "ssh://git@github.com/"]
+	pushInsteadOf = https://github.com/
