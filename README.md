@@ -42,8 +42,8 @@ This configuration provides:
 
 ```bash
 # Clone this repository
-git clone https://github.com/yourusername/git-configuration.git
-cd git-configuration
+git clone https://github.com/orue/git-configuration.git ~/.config/git
+cd ~/.config/git/
 
 # Follow the installation guide below
 # 1. Generate SSH keys (if needed)
