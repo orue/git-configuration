@@ -40,18 +40,25 @@ This configuration provides:
 
 ### Quick Start
 
-```bash
-# Clone this repository
-git clone https://github.com/orue/git-configuration.git ~/.config/git
-cd ~/.config/git/
+**Step 1: Clone this repository**
 
-# Follow the installation guide below
-# 1. Generate SSH keys (if needed)
-# 2. Configure GitHub/GitLab
-# 3. Install config files
-# 4. Update with your personal info
-# 5. Test the setup
+```bash
+# Clone to a location of your choice (e.g., ~/dev or ~/projects)
+git clone https://github.com/orue/git-configuration.git
+cd git-configuration
 ```
+
+**Note:** Remember the location where you cloned this repo - you'll need to reference these files during installation.
+
+**Step 2: Follow the Installation Guide**
+
+After cloning, follow the complete installation process below:
+1. [Generate SSH keys](#step-1-generate-ssh-key-if-you-dont-have-one) (if you don't have one)
+2. [Configure GitHub](#step-2-configure-ssh-keys-for-github)
+3. [Configure GitLab](#step-3-configure-ssh-keys-for-gitlab) (optional)
+4. **[Install config files](#step-4-install-configuration-files)** - Copy files from this cloned repo to `~/.config/git/`
+5. [Update personal information](#step-5-update-personal-information) - Add your name, email, and SSH key
+6. [Test the setup](#step-7-test-your-configuration) - Verify everything works
 
 ---
 
