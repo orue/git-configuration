@@ -5,20 +5,543 @@
 
 ---
 
+## Introduction
+
+This repository contains a **production-ready git configuration** designed for modern software development workflows. It provides an opinionated setup that emphasizes:
+
+- 🔐 **Security**: SSH commit signing, protocol hardening, and credential protection
+- ⚡ **Performance**: Optimized for large repositories with fsmonitor, commit graphs, and incremental maintenance
+- 🎨 **Developer Experience**: 25+ useful aliases, better diffs/merges, and smart defaults
+- 📦 **Modern Standards**: XDG Base Directory compliance, conventional commits, and Git 2.32+ features
+- 🔄 **Best Practices**: Signed commits, linear history, automatic pruning, and integrity checks
+
+### What's Included
+
+This configuration provides:
+
+1. **Complete SSH Signing Setup** - Simpler than GPG, works with GitHub/GitLab
+2. **Performance Optimizations** - 10x faster `git status` on large repos
+3. **Smart Aliases** - Shortcuts for common workflows (undo, amend, sync, gone, etc.)
+4. **Enhanced Diff/Merge** - Histogram algorithm, move detection, zdiff3 conflicts
+5. **Security Hardening** - Block insecure protocols, verify objects, protect secrets
+6. **Global Ignore Patterns** - Never commit secrets, build artifacts, or OS files
+7. **Conventional Commits** - Template enforcing semantic commit messages
+8. **Cross-Platform Support** - Line ending normalization, proper file attributes
+
+### Who Is This For?
+
+- **Individual developers** wanting a battle-tested git setup
+- **Teams** establishing consistent git workflows
+- **Open source maintainers** requiring signed commits and verified contributions
+- **Anyone** tired of configuring git from scratch on new machines
+
+### Quick Start
+
+```bash
+# Clone this repository
+git clone https://github.com/yourusername/git-configuration.git
+cd git-configuration
+
+# Follow the installation guide below
+# 1. Generate SSH keys (if needed)
+# 2. Configure GitHub/GitLab
+# 3. Install config files
+# 4. Update with your personal info
+# 5. Test the setup
+```
+
+---
+
 ## Table of Contents
-1. [User Identity & Signing](#user-identity--signing)
-2. [Commit Configuration](#commit-configuration)
-3. [GPG/SSH Signing](#gpgssh-signing)
-4. [Aliases](#aliases)
-5. [Colors & UI](#colors--ui)
-6. [Branch & Tag Management](#branch--tag-management)
-7. [Diff Configuration](#diff-configuration)
-8. [Merge Configuration](#merge-configuration)
-9. [Push & Fetch](#push--fetch)
-10. [Performance Optimization](#performance-optimization)
-11. [Workflow Enhancements](#workflow-enhancements)
-12. [Security](#security)
-13. [Advanced Features](#advanced-features)
+
+### Getting Started
+1. [Why ~/.config/git Instead of ~/.gitconfig?](#why-configgit-instead-of-gitconfig)
+2. [Installation Guide](#installation)
+   - [Step 1: Generate SSH Key](#step-1-generate-ssh-key-if-you-dont-have-one)
+   - [Step 2: Configure GitHub](#step-2-configure-ssh-keys-for-github)
+   - [Step 3: Configure GitLab](#step-3-configure-ssh-keys-for-gitlab)
+   - [Step 4: Install Config Files](#step-4-install-configuration-files)
+   - [Step 5: Update Personal Info](#step-5-update-personal-information)
+   - [Step 6: Configure Signing](#step-6-configure-ssh-signing-in-git)
+   - [Step 7: Test Setup](#step-7-test-your-configuration)
+   - [Step 8: Additional Settings](#step-8-configure-additional-settings-optional)
+
+### Configuration Reference
+3. [User Identity & Signing](#user-identity--signing)
+4. [Commit Configuration](#commit-configuration)
+5. [GPG/SSH Signing](#gpgssh-signing)
+6. [Aliases](#aliases)
+7. [Colors & UI](#colors--ui)
+8. [Branch & Tag Management](#branch--tag-management)
+9. [Diff Configuration](#diff-configuration)
+10. [Merge Configuration](#merge-configuration)
+11. [Push & Fetch](#push--fetch)
+12. [Performance Optimization](#performance-optimization)
+13. [Workflow Enhancements](#workflow-enhancements)
+14. [Security](#security)
+15. [Advanced Features](#advanced-features)
+16. [Global Ignore Patterns](#global-ignore-patterns)
+17. [Git Attributes](#git-attributes)
+18. [File Structure](#file-structure)
+
+### Additional Resources
+19. [Recommendations](#recommendations)
+20. [Troubleshooting](#troubleshooting)
+21. [Resources](#resources)
+22. [License](#license)
+
+---
+
+## Why ~/.config/git Instead of ~/.gitconfig?
+
+This configuration uses the **XDG Base Directory Specification** for organizing git configuration files.
+
+### Benefits of ~/.config/git/
+
+1. **Better Organization**: All git files in one directory instead of scattered in home directory
+2. **Modern Standard**: XDG Base Directory is the modern Linux/Unix standard (adopted by git 2.32+)
+3. **Cleaner Home Directory**: Reduces clutter in ~/
+4. **Easier Backup**: Single directory to backup all git configuration
+5. **Version Control**: Easier to track in dotfiles repositories
+
+### Directory Structure Comparison
+
+**Old approach (traditional):**
+```
+~/
+├── .gitconfig              # Main config
+├── .gitignore_global       # Global ignore
+├── .gitmessage            # Commit template
+└── .git-templates/        # Templates
+```
+
+**New approach (XDG):**
+```
+~/.config/git/
+├── config                 # Main config (was ~/.gitconfig)
+├── ignore                 # Global ignore (was ~/.gitignore_global)
+├── commit-template.txt    # Commit template
+├── allowed_signers        # SSH signing verification
+└── attributes             # Global attributes
+```
+
+### Migration from ~/.gitconfig
+
+If you have an existing `~/.gitconfig` file, here's how to migrate:
+
+```bash
+# 1. Backup existing configuration
+cp ~/.gitconfig ~/.gitconfig.backup
+
+# 2. Create XDG directory
+mkdir -p ~/.config/git
+
+# 3. Move existing config (if you want to keep your current settings)
+mv ~/.gitconfig ~/.config/git/config
+
+# 4. Or start fresh with this configuration
+cp config ~/.config/git/config
+
+# 5. Verify git finds the config
+git config --list --show-origin
+```
+
+**Git will automatically check both locations in this order:**
+1. `~/.config/git/config` (XDG, preferred)
+2. `~/.gitconfig` (traditional, fallback)
+
+**Important:** If both files exist, git will read from **both**, with `~/.gitconfig` taking precedence. To avoid conflicts, choose one location.
+
+---
+
+## Installation
+
+### Step 1: Generate SSH Key (if you don't have one)
+
+SSH keys are used for both authentication (pushing/pulling) and signing commits.
+
+#### Generate ED25519 Key (Recommended)
+
+```bash
+# Generate a new ED25519 SSH key
+ssh-keygen -t ed25519 -C "your.email@example.com"
+
+# When prompted:
+# - File location: Press Enter for default (~/.ssh/id_ed25519)
+# - Passphrase: Enter a strong passphrase (recommended for security)
+```
+
+**Why ED25519?**
+- ✅ More secure than RSA
+- ✅ Smaller key size (faster)
+- ✅ Better performance
+- ✅ Recommended by GitHub, GitLab, and security experts
+
+#### Alternative: RSA Key (if ED25519 not supported)
+
+```bash
+# Generate 4096-bit RSA key (if ED25519 not available)
+ssh-keygen -t rsa -b 4096 -C "your.email@example.com"
+```
+
+#### Add SSH Key to SSH Agent
+
+```bash
+# Start ssh-agent (if not running)
+eval "$(ssh-agent -s)"
+
+# Add your SSH key to the agent
+ssh-add ~/.ssh/id_ed25519
+
+# Verify key is loaded
+ssh-add -L
+
+# Make it persist across reboots (macOS)
+# Add to ~/.ssh/config:
+cat >> ~/.ssh/config <<'EOF'
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+EOF
+```
+
+---
+
+### Step 2: Configure SSH Keys for GitHub
+
+SSH keys serve two purposes on GitHub:
+1. **Authentication** - Push/pull repositories
+2. **Signing** - Sign commits and tags
+
+You'll add the **same public key** for both purposes.
+
+#### 2.1 Add SSH Key for Authentication
+
+```bash
+# Copy your public key to clipboard
+# macOS:
+pbcopy < ~/.ssh/id_ed25519.pub
+
+# Linux (requires xclip):
+xclip -selection clipboard < ~/.ssh/id_ed25519.pub
+
+# Or just display it:
+cat ~/.ssh/id_ed25519.pub
+```
+
+**On GitHub:**
+1. Go to **Settings** → **SSH and GPG keys** → **New SSH key**
+2. **Title**: `Work Laptop - Authentication` (descriptive name)
+3. **Key type**: `Authentication Key`
+4. **Key**: Paste your public key
+5. Click **Add SSH key**
+
+**Test SSH connection:**
+```bash
+ssh -T git@github.com
+# Should see: "Hi username! You've successfully authenticated..."
+```
+
+#### 2.2 Add SSH Key for Signing (Same Key)
+
+**On GitHub:**
+1. Go to **Settings** → **SSH and GPG keys** → **New SSH key**
+2. **Title**: `Work Laptop - Signing` (descriptive name)
+3. **Key type**: `Signing Key` ⚠️ Important: Select "Signing Key" not "Authentication Key"
+4. **Key**: Paste the **same public key** again
+5. Click **Add SSH key**
+
+**Why add the same key twice?**
+- GitHub separates authentication keys from signing keys
+- You can use the same key for both purposes
+- Or use different keys if you prefer separation
+
+#### 2.3 Enable Vigilant Mode (Optional but Recommended)
+
+**On GitHub:**
+1. Go to **Settings** → **SSH and GPG keys**
+2. Scroll down to **Vigilant mode**
+3. Check **Flag unsigned commits as unverified**
+
+**Benefits:**
+- All unsigned commits will be marked as "Unverified"
+- Makes it obvious when commits aren't signed
+- Improves security awareness
+
+---
+
+### Step 3: Configure SSH Keys for GitLab
+
+Similar to GitHub, GitLab uses SSH keys for authentication and signing.
+
+#### 3.1 Add SSH Key for Authentication
+
+```bash
+# Copy your public key (same commands as above)
+cat ~/.ssh/id_ed25519.pub
+```
+
+**On GitLab:**
+1. Go to **Preferences** → **SSH Keys**
+2. **Key**: Paste your public key
+3. **Title**: `Work Laptop - Authentication` (descriptive name)
+4. **Usage type**: `Authentication` or `Authentication & Signing`
+5. **Expiration date**: Optional (recommended for security)
+6. Click **Add key**
+
+**Test SSH connection:**
+```bash
+ssh -T git@gitlab.com
+# Should see: "Welcome to GitLab, @username!"
+```
+
+#### 3.2 Configure Commit Signing on GitLab
+
+**On GitLab:**
+1. Go to **Preferences** → **GPG Keys** (yes, even for SSH signing!)
+2. GitLab supports SSH signing via the same SSH key
+3. Alternatively, if you want separate signing keys, add another SSH key
+
+**Note:** GitLab's SSH signing support may vary by version. For best compatibility:
+- **GitLab 14.0+**: Native SSH signing support
+- **Earlier versions**: May require GPG signing instead
+
+---
+
+### Step 4: Install Configuration Files
+
+```bash
+# 1. Create config directory
+mkdir -p ~/.config/git
+
+# 2. Copy all configuration files
+cp config ~/.config/git/config
+cp commit-template.txt ~/.config/git/commit-template.txt
+cp allowed_signers ~/.config/git/allowed_signers
+cp attributes ~/.config/git/attributes
+cp ignore ~/.config/git/ignore
+
+# 3. Make sure old ~/.gitconfig doesn't conflict
+# Option A: Remove it (if you're using this config)
+mv ~/.gitconfig ~/.gitconfig.old
+
+# Option B: Keep both (not recommended - can cause conflicts)
+# Git will read both, with ~/.gitconfig taking precedence
+```
+
+---
+
+### Step 5: Update Personal Information
+
+#### 5.1 Edit Main Config
+
+Edit `~/.config/git/config`:
+
+```bash
+# Open in your editor
+nvim ~/.config/git/config  # or nano, vim, code, etc.
+```
+
+**Replace these values:**
+```ini
+[user]
+    name = Your Name              → Your actual name
+    email = your.email@example.com → Your actual email
+    signingkey = ~/.ssh/id_ed25519.pub → Path to your SSH PUBLIC key
+```
+
+**Important:**
+- Use your **public key** (.pub file), not private key
+- Must match the email you used with GitHub/GitLab
+- Path can be absolute or relative to home (~/)
+
+#### 5.2 Create allowed_signers File
+
+The `allowed_signers` file tells git which SSH keys are authorized to sign commits.
+
+```bash
+# Edit the allowed_signers file
+nvim ~/.config/git/allowed_signers
+```
+
+**Format:**
+```
+your.email@example.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... your.email@example.com
+```
+
+**Generate your entry:**
+```bash
+# Get your public key content
+cat ~/.ssh/id_ed25519.pub
+
+# Format it correctly (replace with your actual email and key)
+echo "your.email@example.com namespaces=\"git\" $(cat ~/.ssh/id_ed25519.pub)" > ~/.config/git/allowed_signers
+```
+
+**Explanation of format:**
+- `your.email@example.com` - Email (must match git config)
+- `namespaces="git"` - Limits key to git signing
+- `ssh-ed25519 AAAA...` - Your actual public key content
+- `your.email@example.com` - Comment (usually same email)
+
+#### 5.3 Verify SSH Key Paths
+
+```bash
+# Verify public key exists and is readable
+cat ~/.ssh/id_ed25519.pub
+
+# Verify private key exists (don't display it!)
+ls -la ~/.ssh/id_ed25519
+
+# Check file permissions (private key should be 600)
+chmod 600 ~/.ssh/id_ed25519
+chmod 644 ~/.ssh/id_ed25519.pub
+```
+
+---
+
+### Step 6: Configure SSH Signing in Git
+
+Your configuration already has SSH signing enabled, but let's verify:
+
+```bash
+# Check signing configuration
+git config --global gpg.format
+# Should output: ssh
+
+git config --global user.signingkey
+# Should output: ~/.ssh/id_ed25519.pub (or your key path)
+
+git config --global commit.gpgsign
+# Should output: true
+
+git config --global gpg.ssh.allowedSignersFile
+# Should output: ~/.config/git/allowed_signers
+```
+
+**If any are missing, set them:**
+```bash
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
+git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
+```
+
+---
+
+### Step 7: Test Your Configuration
+
+#### Test 1: Verify Config is Loaded
+
+```bash
+# See where git is reading config from
+git config --list --show-origin | grep "user.name"
+
+# Should show: file:/home/you/.config/git/config
+
+# Check all important settings
+git config user.name
+git config user.email
+git config user.signingkey
+git config commit.gpgsign
+```
+
+#### Test 2: Test Commit Signing
+
+```bash
+# Create a test repository
+mkdir /tmp/git-signing-test
+cd /tmp/git-signing-test
+git init
+
+# Make a test commit
+git commit --allow-empty -m "test: verify SSH signing works"
+
+# Verify the commit is signed
+git log --show-signature -1
+
+# Should see:
+# Good "git" signature for your.email@example.com with ED25519 key SHA256:...
+```
+
+**If signing fails, troubleshoot:**
+```bash
+# Check ssh-agent has your key
+ssh-add -L
+
+# If empty, add your key
+ssh-add ~/.ssh/id_ed25519
+
+# Try signing again
+GIT_TRACE=1 git commit --allow-empty -m "test" -S
+```
+
+#### Test 3: Test GitHub Integration
+
+```bash
+# Clone a repository via SSH
+git clone git@github.com:yourusername/your-repo.git
+cd your-repo
+
+# Make a signed commit
+echo "test" >> README.md
+git add README.md
+git commit -m "test: verify signed commit on GitHub"
+
+# Push to GitHub
+git push
+
+# Check on GitHub:
+# - Go to the commit on GitHub's web interface
+# - Should see "Verified" badge next to your commit
+```
+
+#### Test 4: Test Aliases
+
+```bash
+git sb              # Short status
+git recent          # Recent branches
+git lol             # Visual log
+git branches        # Branch list with tracking
+```
+
+---
+
+### Step 8: Configure Additional Settings (Optional)
+
+#### Set Default Editor
+
+```bash
+# Already set to nvim in config, but you can change it:
+git config --global core.editor "code --wait"  # VS Code
+git config --global core.editor "vim"          # Vim
+git config --global core.editor "nano"         # Nano
+```
+
+#### Configure Diff/Merge Tools
+
+```bash
+# VS Code as difftool
+git config --global diff.tool vscode
+git config --global difftool.vscode.cmd 'code --wait --diff $LOCAL $REMOTE'
+
+# VS Code as mergetool
+git config --global merge.tool vscode
+git config --global mergetool.vscode.cmd 'code --wait --merge $REMOTE $LOCAL $BASE $MERGED'
+```
+
+#### Enable Git Maintenance (Performance)
+
+```bash
+# Enable automatic background maintenance
+git maintenance start
+
+# This will optimize your repositories automatically:
+# - Garbage collection
+# - Commit-graph updates
+# - Incremental repack
+```
 
 ---
 
@@ -629,459 +1152,6 @@ package-lock.json binary       # Don't diff lockfiles
 ├── attributes               # Global gitattributes
 ├── ignore                   # Global gitignore
 └── README.md                # This documentation
-```
-
----
-
-## Why ~/.config/git Instead of ~/.gitconfig?
-
-This configuration uses the **XDG Base Directory Specification** for organizing git configuration files.
-
-### Benefits of ~/.config/git/
-
-1. **Better Organization**: All git files in one directory instead of scattered in home directory
-2. **Modern Standard**: XDG Base Directory is the modern Linux/Unix standard (adopted by git 2.32+)
-3. **Cleaner Home Directory**: Reduces clutter in ~/
-4. **Easier Backup**: Single directory to backup all git configuration
-5. **Version Control**: Easier to track in dotfiles repositories
-
-### Directory Structure Comparison
-
-**Old approach (traditional):**
-```
-~/
-├── .gitconfig              # Main config
-├── .gitignore_global       # Global ignore
-├── .gitmessage            # Commit template
-└── .git-templates/        # Templates
-```
-
-**New approach (XDG):**
-```
-~/.config/git/
-├── config                 # Main config (was ~/.gitconfig)
-├── ignore                 # Global ignore (was ~/.gitignore_global)
-├── commit-template.txt    # Commit template
-├── allowed_signers        # SSH signing verification
-└── attributes             # Global attributes
-```
-
-### Migration from ~/.gitconfig
-
-If you have an existing `~/.gitconfig` file, here's how to migrate:
-
-```bash
-# 1. Backup existing configuration
-cp ~/.gitconfig ~/.gitconfig.backup
-
-# 2. Create XDG directory
-mkdir -p ~/.config/git
-
-# 3. Move existing config (if you want to keep your current settings)
-mv ~/.gitconfig ~/.config/git/config
-
-# 4. Or start fresh with this configuration
-cp config ~/.config/git/config
-
-# 5. Verify git finds the config
-git config --list --show-origin
-```
-
-**Git will automatically check both locations in this order:**
-1. `~/.config/git/config` (XDG, preferred)
-2. `~/.gitconfig` (traditional, fallback)
-
-**Important:** If both files exist, git will read from **both**, with `~/.gitconfig` taking precedence. To avoid conflicts, choose one location.
-
----
-
-## Installation
-
-### Step 1: Generate SSH Key (if you don't have one)
-
-SSH keys are used for both authentication (pushing/pulling) and signing commits.
-
-#### Generate ED25519 Key (Recommended)
-
-```bash
-# Generate a new ED25519 SSH key
-ssh-keygen -t ed25519 -C "your.email@example.com"
-
-# When prompted:
-# - File location: Press Enter for default (~/.ssh/id_ed25519)
-# - Passphrase: Enter a strong passphrase (recommended for security)
-```
-
-**Why ED25519?**
-- ✅ More secure than RSA
-- ✅ Smaller key size (faster)
-- ✅ Better performance
-- ✅ Recommended by GitHub, GitLab, and security experts
-
-#### Alternative: RSA Key (if ED25519 not supported)
-
-```bash
-# Generate 4096-bit RSA key (if ED25519 not available)
-ssh-keygen -t rsa -b 4096 -C "your.email@example.com"
-```
-
-#### Add SSH Key to SSH Agent
-
-```bash
-# Start ssh-agent (if not running)
-eval "$(ssh-agent -s)"
-
-# Add your SSH key to the agent
-ssh-add ~/.ssh/id_ed25519
-
-# Verify key is loaded
-ssh-add -L
-
-# Make it persist across reboots (macOS)
-# Add to ~/.ssh/config:
-cat >> ~/.ssh/config <<'EOF'
-Host *
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/id_ed25519
-EOF
-```
-
----
-
-### Step 2: Configure SSH Keys for GitHub
-
-SSH keys serve two purposes on GitHub:
-1. **Authentication** - Push/pull repositories
-2. **Signing** - Sign commits and tags
-
-You'll add the **same public key** for both purposes.
-
-#### 2.1 Add SSH Key for Authentication
-
-```bash
-# Copy your public key to clipboard
-# macOS:
-pbcopy < ~/.ssh/id_ed25519.pub
-
-# Linux (requires xclip):
-xclip -selection clipboard < ~/.ssh/id_ed25519.pub
-
-# Or just display it:
-cat ~/.ssh/id_ed25519.pub
-```
-
-**On GitHub:**
-1. Go to **Settings** → **SSH and GPG keys** → **New SSH key**
-2. **Title**: `Work Laptop - Authentication` (descriptive name)
-3. **Key type**: `Authentication Key`
-4. **Key**: Paste your public key
-5. Click **Add SSH key**
-
-**Test SSH connection:**
-```bash
-ssh -T git@github.com
-# Should see: "Hi username! You've successfully authenticated..."
-```
-
-#### 2.2 Add SSH Key for Signing (Same Key)
-
-**On GitHub:**
-1. Go to **Settings** → **SSH and GPG keys** → **New SSH key**
-2. **Title**: `Work Laptop - Signing` (descriptive name)
-3. **Key type**: `Signing Key` ⚠️ Important: Select "Signing Key" not "Authentication Key"
-4. **Key**: Paste the **same public key** again
-5. Click **Add SSH key**
-
-**Why add the same key twice?**
-- GitHub separates authentication keys from signing keys
-- You can use the same key for both purposes
-- Or use different keys if you prefer separation
-
-#### 2.3 Enable Vigilant Mode (Optional but Recommended)
-
-**On GitHub:**
-1. Go to **Settings** → **SSH and GPG keys**
-2. Scroll down to **Vigilant mode**
-3. Check **Flag unsigned commits as unverified**
-
-**Benefits:**
-- All unsigned commits will be marked as "Unverified"
-- Makes it obvious when commits aren't signed
-- Improves security awareness
-
----
-
-### Step 3: Configure SSH Keys for GitLab
-
-Similar to GitHub, GitLab uses SSH keys for authentication and signing.
-
-#### 3.1 Add SSH Key for Authentication
-
-```bash
-# Copy your public key (same commands as above)
-cat ~/.ssh/id_ed25519.pub
-```
-
-**On GitLab:**
-1. Go to **Preferences** → **SSH Keys**
-2. **Key**: Paste your public key
-3. **Title**: `Work Laptop - Authentication` (descriptive name)
-4. **Usage type**: `Authentication` or `Authentication & Signing`
-5. **Expiration date**: Optional (recommended for security)
-6. Click **Add key**
-
-**Test SSH connection:**
-```bash
-ssh -T git@gitlab.com
-# Should see: "Welcome to GitLab, @username!"
-```
-
-#### 3.2 Configure Commit Signing on GitLab
-
-**On GitLab:**
-1. Go to **Preferences** → **GPG Keys** (yes, even for SSH signing!)
-2. GitLab supports SSH signing via the same SSH key
-3. Alternatively, if you want separate signing keys, add another SSH key
-
-**Note:** GitLab's SSH signing support may vary by version. For best compatibility:
-- **GitLab 14.0+**: Native SSH signing support
-- **Earlier versions**: May require GPG signing instead
-
----
-
-### Step 4: Install Configuration Files
-
-```bash
-# 1. Create config directory
-mkdir -p ~/.config/git
-
-# 2. Copy all configuration files
-cp config ~/.config/git/config
-cp commit-template.txt ~/.config/git/commit-template.txt
-cp allowed_signers ~/.config/git/allowed_signers
-cp attributes ~/.config/git/attributes
-cp ignore ~/.config/git/ignore
-
-# 3. Make sure old ~/.gitconfig doesn't conflict
-# Option A: Remove it (if you're using this config)
-mv ~/.gitconfig ~/.gitconfig.old
-
-# Option B: Keep both (not recommended - can cause conflicts)
-# Git will read both, with ~/.gitconfig taking precedence
-```
-
----
-
-### Step 5: Update Personal Information
-
-#### 5.1 Edit Main Config
-
-Edit `~/.config/git/config`:
-
-```bash
-# Open in your editor
-nvim ~/.config/git/config  # or nano, vim, code, etc.
-```
-
-**Replace these values:**
-```ini
-[user]
-    name = Your Name              → Your actual name
-    email = your.email@example.com → Your actual email
-    signingkey = ~/.ssh/id_ed25519.pub → Path to your SSH PUBLIC key
-```
-
-**Important:**
-- Use your **public key** (.pub file), not private key
-- Must match the email you used with GitHub/GitLab
-- Path can be absolute or relative to home (~/)
-
-#### 5.2 Create allowed_signers File
-
-The `allowed_signers` file tells git which SSH keys are authorized to sign commits.
-
-```bash
-# Edit the allowed_signers file
-nvim ~/.config/git/allowed_signers
-```
-
-**Format:**
-```
-your.email@example.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... your.email@example.com
-```
-
-**Generate your entry:**
-```bash
-# Get your public key content
-cat ~/.ssh/id_ed25519.pub
-
-# Format it correctly (replace with your actual email and key)
-echo "your.email@example.com namespaces=\"git\" $(cat ~/.ssh/id_ed25519.pub)" > ~/.config/git/allowed_signers
-```
-
-**Explanation of format:**
-- `your.email@example.com` - Email (must match git config)
-- `namespaces="git"` - Limits key to git signing
-- `ssh-ed25519 AAAA...` - Your actual public key content
-- `your.email@example.com` - Comment (usually same email)
-
-#### 5.3 Verify SSH Key Paths
-
-```bash
-# Verify public key exists and is readable
-cat ~/.ssh/id_ed25519.pub
-
-# Verify private key exists (don't display it!)
-ls -la ~/.ssh/id_ed25519
-
-# Check file permissions (private key should be 600)
-chmod 600 ~/.ssh/id_ed25519
-chmod 644 ~/.ssh/id_ed25519.pub
-```
-
----
-
-### Step 6: Configure SSH Signing in Git
-
-Your configuration already has SSH signing enabled, but let's verify:
-
-```bash
-# Check signing configuration
-git config --global gpg.format
-# Should output: ssh
-
-git config --global user.signingkey
-# Should output: ~/.ssh/id_ed25519.pub (or your key path)
-
-git config --global commit.gpgsign
-# Should output: true
-
-git config --global gpg.ssh.allowedSignersFile
-# Should output: ~/.config/git/allowed_signers
-```
-
-**If any are missing, set them:**
-```bash
-git config --global gpg.format ssh
-git config --global user.signingkey ~/.ssh/id_ed25519.pub
-git config --global commit.gpgsign true
-git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
-```
-
----
-
-### Step 7: Test Your Configuration
-
-#### Test 1: Verify Config is Loaded
-
-```bash
-# See where git is reading config from
-git config --list --show-origin | grep "user.name"
-
-# Should show: file:/home/you/.config/git/config
-
-# Check all important settings
-git config user.name
-git config user.email
-git config user.signingkey
-git config commit.gpgsign
-```
-
-#### Test 2: Test Commit Signing
-
-```bash
-# Create a test repository
-mkdir /tmp/git-signing-test
-cd /tmp/git-signing-test
-git init
-
-# Make a test commit
-git commit --allow-empty -m "test: verify SSH signing works"
-
-# Verify the commit is signed
-git log --show-signature -1
-
-# Should see:
-# Good "git" signature for your.email@example.com with ED25519 key SHA256:...
-```
-
-**If signing fails, troubleshoot:**
-```bash
-# Check ssh-agent has your key
-ssh-add -L
-
-# If empty, add your key
-ssh-add ~/.ssh/id_ed25519
-
-# Try signing again
-GIT_TRACE=1 git commit --allow-empty -m "test" -S
-```
-
-#### Test 3: Test GitHub Integration
-
-```bash
-# Clone a repository via SSH
-git clone git@github.com:yourusername/your-repo.git
-cd your-repo
-
-# Make a signed commit
-echo "test" >> README.md
-git add README.md
-git commit -m "test: verify signed commit on GitHub"
-
-# Push to GitHub
-git push
-
-# Check on GitHub:
-# - Go to the commit on GitHub's web interface
-# - Should see "Verified" badge next to your commit
-```
-
-#### Test 4: Test Aliases
-
-```bash
-git sb              # Short status
-git recent          # Recent branches
-git lol             # Visual log
-git branches        # Branch list with tracking
-```
-
----
-
-### Step 8: Configure Additional Settings (Optional)
-
-#### Set Default Editor
-
-```bash
-# Already set to nvim in config, but you can change it:
-git config --global core.editor "code --wait"  # VS Code
-git config --global core.editor "vim"          # Vim
-git config --global core.editor "nano"         # Nano
-```
-
-#### Configure Diff/Merge Tools
-
-```bash
-# VS Code as difftool
-git config --global diff.tool vscode
-git config --global difftool.vscode.cmd 'code --wait --diff $LOCAL $REMOTE'
-
-# VS Code as mergetool
-git config --global merge.tool vscode
-git config --global mergetool.vscode.cmd 'code --wait --merge $REMOTE $LOCAL $BASE $MERGED'
-```
-
-#### Enable Git Maintenance (Performance)
-
-```bash
-# Enable automatic background maintenance
-git maintenance start
-
-# This will optimize your repositories automatically:
-# - Garbage collection
-# - Commit-graph updates
-# - Incremental repack
 ```
 
 ---
