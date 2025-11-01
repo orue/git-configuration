@@ -6,6 +6,8 @@
 
 ---
 
+![image](./img/git-img.png)
+
 ## Introduction
 
 This repository contains a **production-ready git configuration** designed for modern software development workflows. It provides an opinionated setup that emphasizes:
