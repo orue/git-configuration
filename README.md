@@ -55,6 +55,7 @@ cd git-configuration
 ## Table of Contents
 
 ### Getting Started
+
 1. [Why ~/.config/git Instead of ~/.gitconfig?](#why-configgit-instead-of-gitconfig)
 2. [Installation Guide](#installation)
    - [Step 1: Generate SSH Key](#step-1-generate-ssh-key-if-you-dont-have-one)
@@ -67,6 +68,7 @@ cd git-configuration
    - [Step 8: Additional Settings](#step-8-configure-additional-settings-optional)
 
 ### Configuration Reference
+
 3. [User Identity & Signing](#user-identity--signing)
 4. [Commit Configuration](#commit-configuration)
 5. [GPG/SSH Signing](#gpgssh-signing)
@@ -85,6 +87,7 @@ cd git-configuration
 18. [File Structure](#file-structure)
 
 ### Additional Resources
+
 19. [Recommendations](#recommendations)
 20. [Troubleshooting](#troubleshooting)
 21. [Resources](#resources)
@@ -107,6 +110,7 @@ This configuration uses the **XDG Base Directory Specification** for organizing 
 ### Directory Structure Comparison
 
 **Old approach (traditional):**
+
 ```
 ~/
 ├── .gitconfig              # Main config
@@ -116,6 +120,7 @@ This configuration uses the **XDG Base Directory Specification** for organizing 
 ```
 
 **New approach (XDG):**
+
 ```
 ~/.config/git/
 ├── config                 # Main config (was ~/.gitconfig)
@@ -147,6 +152,7 @@ git config --list --show-origin
 ```
 
 **Git will automatically check both locations in this order:**
+
 1. `~/.config/git/config` (XDG, preferred)
 2. `~/.gitconfig` (traditional, fallback)
 
@@ -172,6 +178,7 @@ ssh-keygen -t ed25519 -C "your.email@example.com"
 ```
 
 **Why ED25519?**
+
 - ✅ More secure than RSA
 - ✅ Smaller key size (faster)
 - ✅ Better performance
@@ -211,6 +218,7 @@ EOF
 ### Step 2: Configure SSH Keys for GitHub
 
 SSH keys serve two purposes on GitHub:
+
 1. **Authentication** - Push/pull repositories
 2. **Signing** - Sign commits and tags
 
@@ -231,6 +239,7 @@ cat ~/.ssh/id_ed25519.pub
 ```
 
 **On GitHub:**
+
 1. Go to **Settings** → **SSH and GPG keys** → **New SSH key**
 2. **Title**: `Work Laptop - Authentication` (descriptive name)
 3. **Key type**: `Authentication Key`
@@ -238,6 +247,7 @@ cat ~/.ssh/id_ed25519.pub
 5. Click **Add SSH key**
 
 **Test SSH connection:**
+
 ```bash
 ssh -T git@github.com
 # Should see: "Hi username! You've successfully authenticated..."
@@ -246,6 +256,7 @@ ssh -T git@github.com
 #### 2.2 Add SSH Key for Signing (Same Key)
 
 **On GitHub:**
+
 1. Go to **Settings** → **SSH and GPG keys** → **New SSH key**
 2. **Title**: `Work Laptop - Signing` (descriptive name)
 3. **Key type**: `Signing Key` ⚠️ Important: Select "Signing Key" not "Authentication Key"
@@ -253,6 +264,7 @@ ssh -T git@github.com
 5. Click **Add SSH key**
 
 **Why add the same key twice?**
+
 - GitHub separates authentication keys from signing keys
 - You can use the same key for both purposes
 - Or use different keys if you prefer separation
@@ -260,11 +272,13 @@ ssh -T git@github.com
 #### 2.3 Enable Vigilant Mode (Optional but Recommended)
 
 **On GitHub:**
+
 1. Go to **Settings** → **SSH and GPG keys**
 2. Scroll down to **Vigilant mode**
 3. Check **Flag unsigned commits as unverified**
 
 **Benefits:**
+
 - All unsigned commits will be marked as "Unverified"
 - Makes it obvious when commits aren't signed
 - Improves security awareness
@@ -283,6 +297,7 @@ cat ~/.ssh/id_ed25519.pub
 ```
 
 **On GitLab:**
+
 1. Go to **Preferences** → **SSH Keys**
 2. **Key**: Paste your public key
 3. **Title**: `Work Laptop - Authentication` (descriptive name)
@@ -291,6 +306,7 @@ cat ~/.ssh/id_ed25519.pub
 6. Click **Add key**
 
 **Test SSH connection:**
+
 ```bash
 ssh -T git@gitlab.com
 # Should see: "Welcome to GitLab, @username!"
@@ -299,11 +315,13 @@ ssh -T git@gitlab.com
 #### 3.2 Configure Commit Signing on GitLab
 
 **On GitLab:**
+
 1. Go to **Preferences** → **GPG Keys** (yes, even for SSH signing!)
 2. GitLab supports SSH signing via the same SSH key
 3. Alternatively, if you want separate signing keys, add another SSH key
 
 **Note:** GitLab's SSH signing support may vary by version. For best compatibility:
+
 - **GitLab 14.0+**: Native SSH signing support
 - **Earlier versions**: May require GPG signing instead
 
@@ -344,6 +362,7 @@ nvim ~/.config/git/config  # or nano, vim, code, etc.
 ```
 
 **Replace these values:**
+
 ```ini
 [user]
     name = Your Name              → Your actual name
@@ -352,6 +371,7 @@ nvim ~/.config/git/config  # or nano, vim, code, etc.
 ```
 
 **Important:**
+
 - Use your **public key** (.pub file), not private key
 - Must match the email you used with GitHub/GitLab
 - Path can be absolute or relative to home (~/)
@@ -366,11 +386,13 @@ nvim ~/.config/git/allowed_signers
 ```
 
 **Format:**
+
 ```
 your.email@example.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... your.email@example.com
 ```
 
 **Generate your entry:**
+
 ```bash
 # Get your public key content
 cat ~/.ssh/id_ed25519.pub
@@ -380,6 +402,7 @@ echo "your.email@example.com namespaces=\"git\" $(cat ~/.ssh/id_ed25519.pub)" > 
 ```
 
 **Explanation of format:**
+
 - `your.email@example.com` - Email (must match git config)
 - `namespaces="git"` - Limits key to git signing
 - `ssh-ed25519 AAAA...` - Your actual public key content
@@ -421,6 +444,7 @@ git config --global gpg.ssh.allowedSignersFile
 ```
 
 **If any are missing, set them:**
+
 ```bash
 git config --global gpg.format ssh
 git config --global user.signingkey ~/.ssh/id_ed25519.pub
@@ -466,6 +490,7 @@ git log --show-signature -1
 ```
 
 **If signing fails, troubleshoot:**
+
 ```bash
 # Check ssh-agent has your key
 ssh-add -L
@@ -555,10 +580,12 @@ git maintenance start
 ```
 
 **Purpose:**
+
 - **name/email**: Identity for all commits you make
 - **signingkey**: Path to your SSH public key for signing commits
 
 **Why:**
+
 - Ensures proper attribution in git history
 - SSH key signing is simpler than GPG (no key management complexity)
 - Verified commits provide authenticity and non-repudiation
@@ -576,18 +603,21 @@ git maintenance start
 ```
 
 **Purpose:**
+
 - **gpgsign**: Automatically sign all commits
 - **verbose**: Show diff while writing commit message
 - **template**: Pre-populate commit messages with template
 - **cleanup**: Use scissors mode for cleaning commit messages
 
 **Why:**
+
 - **Signed commits** prove authorship and prevent impersonation
 - **Verbose mode** helps write better commit messages by showing what changed
 - **Template** enforces consistent commit message format (conventional commits)
 - **Scissors cleanup** preserves content above scissors line, removes below
 
 **Template Format:**
+
 ```
 <type>(<scope>): <subject>
 - Types: feat, fix, docs, style, refactor, perf, test, chore, build, ci
@@ -610,20 +640,24 @@ git maintenance start
 ```
 
 **Purpose:**
+
 - **format = ssh**: Use SSH keys instead of GPG keys for signing
 - **allowedSignersFile**: Verification of SSH signatures
 - **defaultKeyCommand**: Automatically use SSH agent keys
 
 **Why:**
+
 - SSH signing is **simpler** than GPG (no separate keyring)
 - Most developers already have SSH keys
 - GitHub/GitLab support SSH signature verification
 - SSH agent integration makes signing seamless
 
 **allowed_signers format:**
+
 ```
 your.email@example.com namespaces="git" ssh-ed25519 AAAAC3... your.email@example.com
 ```
+
 This file allows git to verify your own signatures locally.
 
 ---
@@ -631,16 +665,19 @@ This file allows git to verify your own signatures locally.
 ## Aliases
 
 ### Status & Logging
+
 ```ini
 sb = status -sb                 # Short branch status
 lol = log --oneline --graph --all  # Visual commit graph
 ```
 
 **Why:**
+
 - **sb**: Cleaner, more readable status output
 - **lol**: Visualize branch topology quickly
 
 ### Undo & Amend
+
 ```ini
 undo = reset HEAD~1 --mixed     # Undo last commit, keep changes
 amend = commit --amend --no-edit  # Quick amend without changing message
@@ -648,11 +685,13 @@ fixup = commit --fixup          # Create fixup commit for interactive rebase
 ```
 
 **Why:**
+
 - **undo**: Safe way to uncommit (preserves working directory)
 - **amend**: Quick fixes to last commit
 - **fixup**: Part of interactive rebase workflow for clean history
 
 ### Branch Management
+
 ```ini
 gone = ! git fetch -p && git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == "[gone]" {print $1}' | xargs -r git branch -D
 branches = branch -vv
@@ -660,11 +699,13 @@ recent = branch --sort=-committerdate --format='%(committerdate:relative)%09%(re
 ```
 
 **Why:**
+
 - **gone**: Delete local branches whose remote has been deleted (cleanup after merged PRs)
 - **branches**: See all branches with tracking info
 - **recent**: Find branches you worked on recently (sorted by commit date)
 
 ### Better Diffs
+
 ```ini
 staged = diff --cached          # Show staged changes
 last = log -1 HEAD --stat      # Show last commit with stats
@@ -672,22 +713,26 @@ diffw = diff --word-diff       # Word-level diff (better for prose)
 ```
 
 **Why:**
+
 - **staged**: Preview what will be committed
 - **last**: Quick review of what you just committed
 - **diffw**: Better for reviewing documentation/text changes
 
 ### Interactive Operations
+
 ```ini
 unstage = restore --staged      # Remove from staging area
 discard = restore              # Discard working directory changes
 ```
 
 **Why:**
+
 - Modern git commands (replace `reset HEAD` and `checkout --`)
 - More intuitive naming
 - Safer operations (less destructive defaults)
 
 ### Workflow Shortcuts
+
 ```ini
 pushu = push -u origin HEAD    # Push current branch and set upstream
 sync = !git fetch --all --prune && git pull --rebase  # Sync with remote
@@ -695,11 +740,13 @@ wip = commit -am "WIP" --no-verify  # Quick work-in-progress commit
 ```
 
 **Why:**
+
 - **pushu**: Create remote branch automatically on first push
 - **sync**: Update local repo with all remotes in one command
 - **wip**: Quick save point (bypasses hooks for temporary commits)
 
 ### Search & Debugging
+
 ```ini
 grep = grep -Ii                # Case-insensitive grep
 find = log --all --full-history --  # Find file in history
@@ -707,6 +754,7 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Why:**
+
 - **grep**: Search codebase efficiently (case-insensitive)
 - **find**: Locate deleted files or changes across all branches
 - **contributors**: See team contribution metrics
@@ -739,10 +787,12 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - Enable automatic color in terminal output
 - Customize colors for better readability
 
 **Why:**
+
 - **Visual clarity**: Quickly distinguish added/removed/modified
 - **Consistency**: Same color scheme across all git commands
 - **Accessibility**: Bold colors easier to see in various terminal themes
@@ -762,11 +812,13 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **branch.sort**: Show most recently committed branches first
 - **tag.sort**: Sort tags by semantic version
 - **tag.gpgsign**: Sign all tags automatically
 
 **Why:**
+
 - Recent branches are usually more relevant
 - Version sorting shows v1.9.0 before v1.10.0 (not alphabetically)
 - Signed tags provide release authenticity
@@ -796,6 +848,7 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **algorithm = histogram**: More accurate diff algorithm
 - **colorMoved**: Highlight moved code blocks
 - **mnemonicPrefix**: Use meaningful prefixes (i/, w/, c/ instead of a/, b/)
@@ -805,6 +858,7 @@ contributors = shortlog -sn    # Show commit counts by author
 - **submodule = log**: Show submodule changes as log entries
 
 **Why:**
+
 - **Histogram algorithm**: Better than Myers for most code (faster, more intuitive)
 - **Move detection**: Refactoring shows as moves, not delete+add
 - **Mnemonic prefixes**: i/ = index, w/ = working tree, c/ = commit (clearer context)
@@ -812,6 +866,7 @@ contributors = shortlog -sn    # Show commit counts by author
 - **Lockfile handling**: Treat as binary (they're generated, not meaningful to diff)
 
 **Tool Configuration:**
+
 - **vimdiff**: Powerful side-by-side diff viewer
 - **prompt = false**: Don't ask before launching difftool
 - **trustExitCode**: Honor tool's exit code for success/failure
@@ -833,11 +888,13 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **conflictstyle = zdiff3**: Show 3-way merge conflicts with common ancestor
 - **ff = only**: Only allow fast-forward merges (prevent merge commits)
 - **keepBackup = false**: Don't keep .orig files after merge
 
 **Why:**
+
 - **zdiff3**: Shows original code + both changes = easier conflict resolution
   ```
   <<<<<<< HEAD
@@ -871,6 +928,7 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **autoSetupRemote**: Create remote branch on first push
 - **followTags**: Push annotated tags with commits
 - **default = current**: Push current branch to same name
@@ -881,6 +939,7 @@ contributors = shortlog -sn    # Show commit counts by author
 - **writeCommitGraph**: Update commit graph on fetch
 
 **Why:**
+
 - **autoSetupRemote**: No need for `-u origin branch` on first push
 - **followTags**: Releases (tags) are pushed with commits automatically
 - **Pruning**: Keep local repo clean (no stale references)
@@ -922,6 +981,7 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **fsmonitor**: Use filesystem events to track changes (faster status)
 - **untrackedCache**: Cache untracked files (faster status)
 - **preloadIndex**: Load index in parallel (faster operations)
@@ -934,12 +994,14 @@ contributors = shortlog -sn    # Show commit counts by author
 - **protocol v2**: Faster wire protocol
 
 **Why:**
+
 - **Large repos**: These settings make big repositories faster
 - **Background optimization**: Maintenance runs automatically
 - **Modern git**: Uses latest performance features
 - **Minimal overhead**: All settings are backwards compatible
 
 **Performance Impact:**
+
 - `git status` up to **10x faster** on large repos
 - `git log` and `git blame` significantly faster
 - Reduced disk space usage
@@ -987,30 +1049,36 @@ contributors = shortlog -sn    # Show commit counts by author
 **Purpose & Why:**
 
 ### help.autocorrect = prompt
+
 - Suggests corrections for typos: `git comit` → prompt to run `git commit`
 - Safer than `autocorrect = 1` (auto-runs after 1 second)
 
 ### rerere (Reuse Recorded Resolution)
+
 - **enabled**: Records how you resolved merge conflicts
 - **autoupdate**: Automatically applies previously learned resolutions
 - **Why**: If you rebase and get the same conflict twice, it auto-resolves the second time
 
 ### rebase
+
 - **autoSquash**: Automatically arrange `fixup!` commits during interactive rebase
 - **autoStash**: Stash changes before rebase, apply after
 - **updateRefs**: Update all branches pointing to rebased commits
 - **Why**: Cleaner rebase workflow, less manual work
 
 ### pull.rebase = true
+
 - Always rebase instead of merge when pulling
 - **Why**: Linear history, no merge commits from `git pull`
 
 ### status
+
 - **showUntrackedFiles = all**: Show all files in untracked directories
 - **submoduleSummary**: Show submodule changes in status
 - **Why**: Better visibility of repository state
 
 ### log
+
 - **abbrevCommit**: Show short commit hashes (7 chars)
 - **follow**: Track file renames in log
 - **decorate**: Show branch/tag names in log
@@ -1018,10 +1086,12 @@ contributors = shortlog -sn    # Show commit counts by author
 - **Why**: More readable, informative output
 
 ### submodule.recurse = true
+
 - Automatically recurse into submodules for all commands
 - **Why**: Submodules stay in sync with parent repo
 
 ### blame
+
 - **ignoreRevsFile**: Ignore bulk formatting commits in blame
 - **markIgnoredLines**: Mark lines from ignored commits
 - **Why**: `git blame` shows who actually wrote the code, not who ran Prettier
@@ -1048,16 +1118,19 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **fsckObjects**: Verify object integrity during transfer
 - **URL rewrites**: Force HTTPS/SSH, block insecure git:// protocol
 
 **Why:**
+
 - **Corruption detection**: Catch corrupted objects during push/pull
 - **Security**: git:// protocol is unencrypted and unauthenticated
 - **Best practice**: Always use HTTPS for fetching, SSH for pushing
 - **GitHub optimization**: Uses SSH for push (faster, more reliable)
 
 **Attack prevention:**
+
 - Man-in-the-middle attacks (git:// protocol)
 - Repository corruption
 - Malicious object injection
@@ -1084,12 +1157,14 @@ contributors = shortlog -sn    # Show commit counts by author
 ```
 
 **Purpose:**
+
 - **defaultBranch = main**: Use "main" instead of "master" for new repos
 - **manyFiles**: Optimize for repositories with many files
 - **lfs**: Git Large File Storage support
 - **column.ui**: Use columns in output when space permits
 
 **Why:**
+
 - **main**: Industry standard, inclusive naming
 - **manyFiles**: Better performance for monorepos
 - **LFS**: Required for binary assets, datasets, media files
@@ -1102,15 +1177,17 @@ contributors = shortlog -sn    # Show commit counts by author
 **File:** `~/.config/git/ignore`
 
 ### Categories:
+
 1. **OS files**: .DS_Store, Thumbs.db, desktop.ini
-2. **IDEs**: .vscode/, .idea/, *.swp
+2. **IDEs**: .vscode/, .idea/, \*.swp
 3. **Dependencies**: node_modules/, vendor/, .venv/
-4. **Secrets**: .env, *.key, *.pem, credentials.json
-5. **Build artifacts**: dist/, build/, target/, *.egg-info/
-6. **DevOps**: .terraform/, *.tfstate, docker-compose.override.yml
-7. **Languages**: __pycache__/, *.pyc, *.class, *.o
+4. **Secrets**: .env, _.key, _.pem, credentials.json
+5. **Build artifacts**: dist/, build/, target/, \*.egg-info/
+6. **DevOps**: .terraform/, \*.tfstate, docker-compose.override.yml
+7. **Languages**: **pycache**/, _.pyc, _.class, \*.o
 
 **Why:**
+
 - **Never commit secrets**: Prevent credential leaks
 - **Clean repos**: Don't commit generated files
 - **Universal**: Applies to all your repositories
@@ -1130,11 +1207,13 @@ package-lock.json binary       # Don't diff lockfiles
 ```
 
 **Purpose:**
+
 - **Line ending normalization**: Consistent LF across platforms
 - **Binary file detection**: Don't diff images/binaries
 - **Merge strategies**: Special handling for lockfiles
 
 **Why:**
+
 - **Cross-platform**: Windows/Mac/Linux consistency
 - **Clean diffs**: No "entire file changed" due to line endings
 - **Lockfile handling**: Merge lockfiles correctly (union strategy)
@@ -1142,35 +1221,24 @@ package-lock.json binary       # Don't diff lockfiles
 
 ---
 
-## File Structure
-
-```
-~/.config/git/
-├── config                    # Main configuration file
-├── commit-template.txt      # Commit message template
-├── allowed_signers          # SSH signature verification
-├── attributes               # Global gitattributes
-├── ignore                   # Global gitignore
-└── README.md                # This documentation
-```
-
----
-
 ## Recommendations
 
 ### For Teams
+
 1. Share `allowed_signers` file (add team keys)
 2. Agree on `.git-blame-ignore-revs` for formatting commits
 3. Use same `commit-template.txt` for consistency
 4. Document custom aliases in team wiki
 
 ### For Large Repos
+
 1. Enable `core.fsmonitor` (requires watchman or built-in)
 2. Use `git maintenance start` for background optimization
 3. Consider partial clone: `git clone --filter=blob:none`
 4. Use sparse checkout for monorepos
 
 ### Security Checklist
+
 - ✅ All commits signed
 - ✅ git:// protocol blocked
 - ✅ Secrets in global ignore
@@ -1182,6 +1250,7 @@ package-lock.json binary       # Don't diff lockfiles
 ## Troubleshooting
 
 ### Signing Issues
+
 ```bash
 # Verify SSH key is loaded
 ssh-add -L
@@ -1194,6 +1263,7 @@ cat ~/.config/git/allowed_signers
 ```
 
 ### Performance Issues
+
 ```bash
 # Run maintenance
 git maintenance run --task=gc
@@ -1206,6 +1276,7 @@ git commit-graph write --reachable
 ```
 
 ### Merge Tool Not Working
+
 ```bash
 # Verify vimdiff is available
 which vimdiff
